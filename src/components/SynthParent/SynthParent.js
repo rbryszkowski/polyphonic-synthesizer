@@ -53,9 +53,6 @@ export const SynthParent = () => {
   const [notesState, setNotesState] = useState(initialNotesState);
   const [lastNoteTriggered, setLastNoteTriggered] = useState('');
   const [lastNoteReleased, setLastNoteReleased] = useState('');
-  //const [octaveIndex, setOctaveIndex] = useState(middleOctave);
-  //const [synth, setSynth] = useState(null);
-  //const [fxArray, setFxArray] = useState(null);
   const [scale, setScale] = useState( {root:'C', type:'major', tones: ChordCalculations.getScaleTones('C', 'major')} );
   const [chordComplexity, setChordComplexity] = useState(3); //how many notes in a chord
   const chordNumerals = [1,2,3,4,5,6,7].map( number => {return ChordCalculations.getChordNumeral(number, scale.type);});
