@@ -1,8 +1,8 @@
-#TO DO
+# TO DO
 
 Note: Since I'm going to be using the word 'keyboard' and 'key' alot, which could be misinterpreted as the whole of, or part of the synth itself, assume that 'keyboard' and 'key' refer to COMPUTER keyboard. If I am referring to the synth I will say 'synth' and 'note' and not 'keyboard' or 'key'. This duplicate terminology is proving rather annoying, especially as I will also be mentioning musical keys (scales), so hopefully knowing this will avoid alot of confusion.
 
-##immediate:
+## immediate:
 
 - fix error with notes not releasing
 - move all js styles to css styles and change code accordingly
@@ -13,7 +13,7 @@ Note: Since I'm going to be using the word 'keyboard' and 'key' alot, which coul
 - improve style and layout
 
 
-##future features:
+## future features:
 
 - add an effects selector
 - add a synth selector
