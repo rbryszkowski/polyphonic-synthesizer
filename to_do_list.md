@@ -14,6 +14,7 @@ immediate:
 
 
 future features:
+
 -add an effects selector
 -add a synth selector
 -add a musical key selector for chords, consisting of a root-note selector and a scale selector

@@ -48,6 +48,8 @@ const initialNotesState = {
 
 export const SynthParent = () => {
 
+  const userSynth = new Tone.PolySynth(Tone.FMSynth).toDestination();
+
   const [notesState, setNotesState] = useState(initialNotesState);
   const [lastNoteTriggered, setLastNoteTriggered] = useState('');
   const [lastNoteReleased, setLastNoteReleased] = useState('');
@@ -55,7 +57,7 @@ export const SynthParent = () => {
   //const [synth, setSynth] = useState(null);
   //const [fxArray, setFxArray] = useState(null);
   const [scale, setScale] = useState( {root:'C', type:'major', tones: ChordCalculations.getScaleTones('C', 'major')} );
-  const [chordComplexity, setChordComplexity] = useState(2); //how many notes in a chord
+  const [chordComplexity, setChordComplexity] = useState(3); //how many notes in a chord
   const chordNumerals = [1,2,3,4,5,6,7].map( number => {return ChordCalculations.getChordNumeral(number, scale.type);});
   const chordNames = ChordCalculations.getChordsInKey(scale.root, scale.type);
   const chordNotes = chordNames.map( chord => {
@@ -143,7 +145,6 @@ export const SynthParent = () => {
   const handleMouseDown = (note) => {
     setLastNoteTriggered(note);
     setNotesState( ({[note]:prevNoteProperties, ...rest}) => {
-      //console.log('you pressed a note!', 'prev properties of the triggered note:', prevNoteProperties, 'the rest of notes state:', rest);
       let {isActive, repeatTriggers} = prevNoteProperties;
       isActive = true;
       repeatTriggers += 1;
@@ -151,7 +152,6 @@ export const SynthParent = () => {
         [note]: {isActive, repeatTriggers: repeatTriggers},
         ...rest
       }
-      //console.log('new notes state:', newNotesState);
       return newNotesState;
     } );
   }
@@ -159,7 +159,6 @@ export const SynthParent = () => {
   const handleMouseUp = (note) => {
     setLastNoteReleased(note);
     setNotesState( ({[note]:prevNoteProperties, ...rest}) => {
-      //console.log('you released a note!', 'prev properties of the released note:', prevNoteProperties, 'the rest of notes state:', rest);
       let {isActive, repeatTriggers} = prevNoteProperties;
       isActive = false;
       repeatTriggers = 0;
@@ -167,7 +166,6 @@ export const SynthParent = () => {
         [note]: {isActive: isActive, repeatTriggers: repeatTriggers},
         ...rest
       }
-      //console.log('new notes state:', newNotesState);
       return newNotesState;
     } );
   }
@@ -180,14 +178,11 @@ export const SynthParent = () => {
 
   }
 
-  /////////////
-
   const handleKeyDown = e => {
     if (!keyMappings[e.key]) {return;}
     const note = keyMappings[e.key];
     setLastNoteTriggered(note);
     setNotesState( ({[note]:prevNoteProperties, ...rest}) => {
-      //console.log('you pressed a note!', 'prev properties of the triggered note:', prevNoteProperties, 'the rest of notes state:', rest);
       let {isActive, repeatTriggers} = prevNoteProperties;
       isActive = true;
       repeatTriggers += 1;
@@ -195,7 +190,6 @@ export const SynthParent = () => {
         [note]: {isActive: isActive, repeatTriggers: repeatTriggers},
         ...rest
       }
-      //console.log('new notes state:', newNotesState);
       return newNotesState;
     } );
   }
@@ -203,10 +197,8 @@ export const SynthParent = () => {
   const handleKeyUp = e => {
     if (!keyMappings[e.key]) {return;}
     const note = keyMappings[e.key];
-    //releaseNote(note);
     setLastNoteReleased(note);
     setNotesState( ({[note]:prevNoteProperties, ...rest}) => {
-      //console.log('you released a note!', 'prev properties of the released note:', prevNoteProperties, 'the rest of notes state:', rest);
       let {isActive, repeatTriggers} = prevNoteProperties;
       isActive = false;
       repeatTriggers = 0;
@@ -214,7 +206,6 @@ export const SynthParent = () => {
         [note]: {isActive: isActive, repeatTriggers: repeatTriggers},
         ...rest
       }
-      //console.log('new notes state:', newNotesState);
       return newNotesState;
     } );
   }
@@ -234,7 +225,7 @@ export const SynthParent = () => {
   }
 
   const handleLastNoteTriggered = (note) => {
-    if (note && notesState[note].repeatTriggers < 2) { // if there have been any notes triggered at all, and the note hasn't been triggered before release
+    if (note && notesState[note].repeatTriggers < 2) { // if there have been any notes triggered at all, and the note hasn't been retriggered before release
       triggerNote(note);
     }
   }
@@ -245,11 +236,7 @@ export const SynthParent = () => {
     }
   }
 
-  /////////////
-
-  //effects:
-
-  let userSynth = new Tone.PolySynth(Tone.FMSynth).toDestination();
+  //UseEffects:
 
   //add event listeners for keyPresses
 
