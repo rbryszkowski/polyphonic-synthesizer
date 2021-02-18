@@ -50,6 +50,8 @@ export const SynthParent = () => {
 
   const userSynth = new Tone.PolySynth(Tone.FMSynth).toDestination();
 
+  const [testState, setTestState] = useState(0);
+
   const [notesState, setNotesState] = useState(initialNotesState);
   const [lastNoteTriggered, setLastNoteTriggered] = useState('');
   const [lastNoteReleased, setLastNoteReleased] = useState('');
@@ -90,22 +92,27 @@ export const SynthParent = () => {
     }
   }
 
-  const triggerChord = (chordArr) => {
+  const triggerChord = (chordArr, delay=0, stagger=0) => {
     for (let i=0;i<chordArr.length;i++) {
-      triggerNote(chordArr[i]);
+      triggerNote(chordArr[i], delay);
+      delay+=stagger;
     }
   }
 
-  const releaseChord = (chordArr) => {
+  const releaseChord = (chordArr, delay=0) => {
     for (let i=0;i<chordArr.length;i++) {
-      releaseNote(chordArr[i]);
+      releaseNote(chordArr[i], delay);
     }
   }
 
   const triggerChordAtID = (chordID) => {
+
+    Tone.Transport.start();
+
     let chordNotes = chordsState[chordID].notes;
-    triggerChord(chordNotes);
-    ///*
+    triggerChord(chordNotes, 0, 0.5);
+    setTestState(1);
+    /*
     //update chord state:
     setChordsState( ({[chordID]:chordObj, ...restChordsState}) => {
       let {isActive, ...restChordObj} = chordObj;
@@ -119,13 +126,19 @@ export const SynthParent = () => {
   }
 
   useEffect(() => {
-    console.log(chordsState);
+    //console.log(chordsState);
   }, [chordsState]);
 
   const releaseChordAtID = (chordID) => {
+
+    //console.log(userSynth);
+    //userSynth.triggerRelease(['C4', 'E4', 'G4'], Tone.now());
+
     let chordNotes = chordsState[chordID].notes;
     releaseChord(chordNotes);
-    //userSynth.triggerRelease(['C4', 'E4', 'G4'], Tone.now());
+
+    console.log(Tone.getTransport());
+
     ///*
     //update chord state:
     setChordsState( ({[chordID]:chordObj, ...restChordsState}) => {
@@ -207,18 +220,18 @@ export const SynthParent = () => {
     } );
   }
 
-  const triggerNote = (note) => {
+  const triggerNote = (note, delay=0) => {
     let now = Tone.now();
     let formattedNote = note.replace('sh', '#') + middleOctave;
     console.log('formatted note just before trigger:', formattedNote);
-    userSynth.triggerAttack(formattedNote, now);
+    userSynth.triggerAttack(formattedNote, now + delay);
   }
 
-  const releaseNote = (note) => {
+  const releaseNote = (note, delay=0) => {
     let now = Tone.now();
     let formattedNote = note.replace('sh', '#') + middleOctave;
     console.log('formatted note just before release:', formattedNote);
-    userSynth.triggerRelease(formattedNote, now);
+    userSynth.triggerRelease(formattedNote, now + delay);
   }
 
   const handleLastNoteTriggered = (note) => {
