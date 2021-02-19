@@ -7,8 +7,8 @@ const scales = {
     chords: ['major', 'minor', 'minor', 'major', 'major', 'minor', 'diminished']
   },
   minor: {
-    intervals: [2,2,1,2,2,2,1],
-    chords: ['major', 'minor', 'minor', 'major', 'major', 'minor', 'diminished']
+    intervals: [2,1,2,2,1,2,2],
+    chords: ['minor', 'diminished', 'major', 'minor', 'minor', 'major', 'major']
   }
 }
 
@@ -39,6 +39,14 @@ const chordTypes = {
 }
 
 export const ChordCalculations = {
+
+  formatChordOrNote(chordOrNote) {
+    return chordOrNote.replace('sh', '#');
+  },
+
+  getNotes() {
+    return notes;
+  },
 
   getScaleTones(root, type) {
     let scaleTones = [];

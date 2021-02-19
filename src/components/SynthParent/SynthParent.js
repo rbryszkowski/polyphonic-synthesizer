@@ -29,7 +29,7 @@ const keyMappings = {
 }
 
 const initialNotesState = {
-    'C': {isActive: false, repeatTriggers: 0}, //repeatTriggers counts how many times the note has been retriggered before release, only notes with value 1 will be played
+    'C': {isActive: false, repeatTriggers: 0}, //repeatTriggers counts how many times the note has been retriggered before release
     'Csh': {isActive: false, repeatTriggers: 0},
     'D': {isActive: false, repeatTriggers: 0},
     'Dsh': {isActive: false, repeatTriggers: 0},
@@ -48,14 +48,15 @@ const initialNotesState = {
 
 export const SynthParent = () => {
 
-  const userSynth = new Tone.PolySynth(Tone.FMSynth).toDestination();
+  const formatted = ChordCalculations.formatChordOrNote;
 
-  const [testState, setTestState] = useState(0);
-
+  //const [testState, setTestState] = useState(0);
+  const [synths, setSynths] = useState(['FMSynth', 'AMSynth', 'DuoSynth']);
+  const [userSynth, setUserSynth] = useState(null); //loaded on mount, see effects
   const [notesState, setNotesState] = useState(initialNotesState);
   const [lastNoteTriggered, setLastNoteTriggered] = useState('');
   const [lastNoteReleased, setLastNoteReleased] = useState('');
-  const [scale, setScale] = useState( {root:'C', type:'major', tones: ChordCalculations.getScaleTones('C', 'major')} );
+  const [scale, setScale] = useState( {root:'C', type:'minor', tones: ChordCalculations.getScaleTones('C', 'minor')} );
   const [chordComplexity, setChordComplexity] = useState(3); //how many notes in a chord
   const chordNumerals = [1,2,3,4,5,6,7].map( number => {return ChordCalculations.getChordNumeral(number, scale.type);});
   const chordNames = ChordCalculations.getChordsInKey(scale.root, scale.type);
@@ -107,37 +108,28 @@ export const SynthParent = () => {
 
   const triggerChordAtID = (chordID) => {
 
-    Tone.Transport.start();
-
     let chordNotes = chordsState[chordID].notes;
-    triggerChord(chordNotes, 0, 0.5);
-    setTestState(1);
-    /*
+    triggerChord(chordNotes);
+
+    ///*
     //update chord state:
     setChordsState( ({[chordID]:chordObj, ...restChordsState}) => {
       let {isActive, ...restChordObj} = chordObj;
       isActive = true;
       return {
-        [chordID]: {isActive, ...restChordObj},
+        [chordID]: {isActive: isActive, ...restChordObj},
         ...restChordsState
       }
     } );
     //*/
   }
 
-  useEffect(() => {
-    //console.log(chordsState);
-  }, [chordsState]);
-
   const releaseChordAtID = (chordID) => {
 
     //console.log(userSynth);
-    //userSynth.triggerRelease(['C4', 'E4', 'G4'], Tone.now());
 
     let chordNotes = chordsState[chordID].notes;
     releaseChord(chordNotes);
-
-    console.log(Tone.getTransport());
 
     ///*
     //update chord state:
@@ -145,7 +137,7 @@ export const SynthParent = () => {
       let {isActive, ...restChordObj} = chordObj;
       isActive = false;
       return {
-        [chordID]: {isActive, ...restChordObj},
+        [chordID]: {isActive: isActive, ...restChordObj},
         ...restChordsState
       }
     } );
@@ -153,13 +145,13 @@ export const SynthParent = () => {
   }
 
   const handleMouseDown = (note) => {
-    setLastNoteTriggered(note);
+    setLastNoteTriggered(() => note);
     setNotesState( ({[note]:prevNoteProperties, ...rest}) => {
       let {isActive, repeatTriggers} = prevNoteProperties;
       isActive = true;
       repeatTriggers += 1;
       const newNotesState = {
-        [note]: {isActive, repeatTriggers: repeatTriggers},
+        [note]: {isActive: isActive, repeatTriggers: repeatTriggers},
         ...rest
       }
       return newNotesState;
@@ -167,7 +159,7 @@ export const SynthParent = () => {
   }
 
   const handleMouseUp = (note) => {
-    setLastNoteReleased(note);
+    setLastNoteReleased(() => note);
     setNotesState( ({[note]:prevNoteProperties, ...rest}) => {
       let {isActive, repeatTriggers} = prevNoteProperties;
       isActive = false;
@@ -191,7 +183,7 @@ export const SynthParent = () => {
   const handleKeyDown = e => {
     if (!keyMappings[e.key]) {return;}
     const note = keyMappings[e.key];
-    setLastNoteTriggered(note);
+    setLastNoteTriggered(() => note);
     setNotesState( ({[note]:prevNoteProperties, ...rest}) => {
       let {isActive, repeatTriggers} = prevNoteProperties;
       isActive = true;
@@ -207,7 +199,7 @@ export const SynthParent = () => {
   const handleKeyUp = e => {
     if (!keyMappings[e.key]) {return;}
     const note = keyMappings[e.key];
-    setLastNoteReleased(note);
+    setLastNoteReleased(() => note);
     setNotesState( ({[note]:prevNoteProperties, ...rest}) => {
       let {isActive, repeatTriggers} = prevNoteProperties;
       isActive = false;
@@ -235,7 +227,7 @@ export const SynthParent = () => {
   }
 
   const handleLastNoteTriggered = (note) => {
-    if (note && notesState[note].repeatTriggers < 2) { // if there have been any notes triggered at all, and the note hasn't been retriggered before release
+    if (note && notesState[note].repeatTriggers < 2) { // if note is not undefined, and the note isnt already active
       triggerNote(note);
     }
   }
@@ -254,10 +246,12 @@ export const SynthParent = () => {
     //action
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
+    setUserSynth(new Tone.PolySynth(Tone[synths[0]]).toDestination());
     //cleanup func
     return ( () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
+      if (userSynth) {userSynth.dispose();}
     } );
   }, []);
 
@@ -266,6 +260,7 @@ export const SynthParent = () => {
   useEffect(() => {
 
     console.log('last triggered:', lastNoteTriggered)
+    console.log(notesState);
     handleLastNoteTriggered(lastNoteTriggered);
 
   }, [lastNoteTriggered]);
@@ -275,6 +270,7 @@ export const SynthParent = () => {
   useEffect(() => {
 
     console.log('last released:', lastNoteReleased);
+    console.log(notesState);
     handleLastNoteReleased(lastNoteReleased);
 
   }, [lastNoteReleased]);
