@@ -14,6 +14,7 @@ const lowestOctave = middleOctave - Math.floor(numOctaves / 2);
 const notes = ["C", "Csh", "D", "Dsh", "E", "F", "Fsh", "G", "Gsh", "A", "Ash", "B"];
 
 const keyMappings = {
+  //notes
   d: 'C',
   r: 'Csh',
   f: 'D',
@@ -25,11 +26,19 @@ const keyMappings = {
   i: 'Gsh',
   k: 'A',
   o: 'Ash',
-  l: 'B'
+  l: 'B',
+  //chords
+  '1': 'chord1',
+  '2': 'chord2',
+  '3': 'chord3',
+  '4': 'chord4',
+  'q': 'chord5',
+  'w': 'chord6',
+  'e': 'chord7'
 }
 
 const initialNotesState = {
-    'C': {isActive: false}, //repeatTriggers counts how many times the note has been retriggered before release
+    'C': {isActive: false},
     'Csh': {isActive: false},
     'D': {isActive: false},
     'Dsh': {isActive: false},
@@ -54,7 +63,7 @@ export const SynthParent = () => {
   const [notesState, setNotesState] = useState(initialNotesState);
   const [keyEvent, setKeyEvent] = useState( { key: '', isDown: false } );
 
-  const [scale, setScale] = useState( {root:'C', type:'minor', tones: ChordCalculations.getScaleTones('C', 'minor')} );
+  const [scale, setScale] = useState( {root:'C', type:'major', tones: ChordCalculations.getScaleTones('C', 'major')} );
   const [chordComplexity, setChordComplexity] = useState(3); //how many notes in a chord
   const chordNumerals = [1,2,3,4,5,6,7].map( number => {return ChordCalculations.getChordNumeral(number, scale.type);});
   const chordNames = ChordCalculations.getChordsInKey(scale.root, scale.type);
@@ -173,22 +182,20 @@ export const SynthParent = () => {
   const triggerNote = (note, delay=0) => {
     let now = Tone.now();
     let formattedNote = note.replace('sh', '#') + middleOctave;
-    console.log('formatted note just before trigger:', formattedNote);
+    //console.log('formatted note just before trigger:', formattedNote);
     userSynth.triggerAttack(formattedNote, now + delay);
   }
 
   const releaseNote = (note, delay=0) => {
     let now = Tone.now();
     let formattedNote = note.replace('sh', '#') + middleOctave;
-    console.log('formatted note just before release:', formattedNote);
+    //console.log('formatted note just before release:', formattedNote);
     userSynth.triggerRelease(formattedNote, now + delay);
   }
-
 
   //UseEffects:
 
   //add event listeners for keyPresses
-
   useEffect( () => {
     //action
     window.addEventListener('keydown', handleKeyDown);
@@ -203,16 +210,18 @@ export const SynthParent = () => {
   }, []);
 
   //handle key events
-
   useEffect(() => {
 
-    console.log(keyEvent)
-    //console.log(notesState);
-
-    if (keyEvent.key) {
-      const note = keyMappings[keyEvent.key];
-      //trigger if
-      if (keyEvent.isDown && !notesState[note].isActive) {
+    if (keyMappings[keyEvent.key]) {
+      let chord, note;
+      //is the key mapped to a note or a chord?
+      if (keyMappings[keyEvent.key].includes('chord')) {
+        chord = keyMappings[keyEvent.key];
+      } else {
+        note = keyMappings[keyEvent.key];
+      }
+      //trigger note
+      if (note && keyEvent.isDown && !notesState[note].isActive) {
         triggerNote(note);
         //update notes state
         setNotesState( ({[note]:noteObj, ...rest}) => {
@@ -221,8 +230,12 @@ export const SynthParent = () => {
           return {[note]: {isActive: isActive}, ...rest};
         } );
       }
-      //release if
-      if (!keyEvent.isDown) {
+      //triggerChord
+      if (chord && keyEvent.isDown && !chordsState[chord].isActive) {
+        triggerChordAtID(chord);
+      }
+      //release note
+      if (note && !keyEvent.isDown) {
         releaseNote(note);
         //update notes state
         setNotesState( ({[note]:noteObj, ...rest}) => {
@@ -231,8 +244,12 @@ export const SynthParent = () => {
           return {[note]: {isActive: isActive}, ...rest};
         } );
       }
-    }
+      //releaseChord
+      if (chord && !keyEvent.isDown) {
+        releaseChordAtID(chord);
+      }
 
+    }
 
   }, [keyEvent]);
 
@@ -256,7 +273,6 @@ export const SynthParent = () => {
       handleMouseOut={handleMouseOut}
       />
       <br/>
-      <button className='start-audio-button' onClick={() => {Tone.start()}}>START AUDIO</button>
     </div>
   );
 
