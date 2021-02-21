@@ -59,7 +59,9 @@ export const SynthParent = () => {
 
   //const [testState, setTestState] = useState(0);
   const [synths, setSynths] = useState(['FMSynth', 'AMSynth', 'DuoSynth']);
-  const [userSynth, setUserSynth] = useState(null); //loaded on mount, see effects
+  //const [userSynth, setUserSynth] = useState(null);
+  const [keySynth, setKeySynth] = useState(null);
+  const [chordSynth, setChordSynth] = useState(null);
   const [notesState, setNotesState] = useState(initialNotesState);
   const [keyEvent, setKeyEvent] = useState( { key: '', isDown: false } );
 
@@ -94,22 +96,22 @@ export const SynthParent = () => {
     triggerChord(chordNotes);
   }
 
-  const releaseAllNotes = (root) => {
+  const releaseAllNotes = (synth) => {
     for (let i=0;i<notes.length;i++) {
-      releaseNote(notes[i]);
+      releaseNote(notes[i], synth);
     }
   }
 
   const triggerChord = (chordArr, delay=0, stagger=0) => {
     for (let i=0;i<chordArr.length;i++) {
-      triggerNote(chordArr[i], delay);
+      triggerNote(chordArr[i], chordSynth, delay);
       delay+=stagger;
     }
   }
 
   const releaseChord = (chordArr, delay=0) => {
     for (let i=0;i<chordArr.length;i++) {
-      releaseNote(chordArr[i], delay);
+      releaseNote(chordArr[i], chordSynth, delay);
     }
   }
 
@@ -179,18 +181,18 @@ export const SynthParent = () => {
     setKeyEvent({key: e.key, isDown: false});
   }
 
-  const triggerNote = (note, delay=0) => {
+  const triggerNote = (note, synth, delay=0) => {
     let now = Tone.now();
     let formattedNote = note.replace('sh', '#') + middleOctave;
     //console.log('formatted note just before trigger:', formattedNote);
-    userSynth.triggerAttack(formattedNote, now + delay);
+    synth.triggerAttack(formattedNote, now + delay);
   }
 
-  const releaseNote = (note, delay=0) => {
+  const releaseNote = (note, synth, delay=0) => {
     let now = Tone.now();
     let formattedNote = note.replace('sh', '#') + middleOctave;
     //console.log('formatted note just before release:', formattedNote);
-    userSynth.triggerRelease(formattedNote, now + delay);
+    synth.triggerRelease(formattedNote, now + delay);
   }
 
   //UseEffects:
@@ -200,12 +202,16 @@ export const SynthParent = () => {
     //action
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
-    setUserSynth(new Tone.PolySynth(Tone[synths[0]]).toDestination());
+    //setUserSynth(new Tone.PolySynth(Tone[synths[0]]).toDestination());
+    setKeySynth(new Tone.PolySynth(Tone[synths[0]]).toDestination());
+    setChordSynth(new Tone.PolySynth(Tone[synths[1]]).toDestination());
     //cleanup func
     return ( () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
-      if (userSynth) {userSynth.dispose();}
+      //if (userSynth) {userSynth.dispose();}
+      if (keySynth) {keySynth.dispose();}
+      if (chordSynth) {chordSynth.dispose();}
     } );
   }, []);
 
@@ -222,7 +228,7 @@ export const SynthParent = () => {
       }
       //trigger note
       if (note && keyEvent.isDown && !notesState[note].isActive) {
-        triggerNote(note);
+        triggerNote(note, keySynth);
         //update notes state
         setNotesState( ({[note]:noteObj, ...rest}) => {
           let {isActive} = noteObj;
@@ -236,7 +242,7 @@ export const SynthParent = () => {
       }
       //release note
       if (note && !keyEvent.isDown) {
-        releaseNote(note);
+        releaseNote(note, keySynth);
         //update notes state
         setNotesState( ({[note]:noteObj, ...rest}) => {
           let {isActive} = noteObj;

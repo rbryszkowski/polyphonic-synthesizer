@@ -4,7 +4,6 @@ Note: Since I'm going to be using the word 'keyboard' and 'key' alot, which coul
 
 ## immediate:
 
-- add a seperate synth for chordpad so you can control the volume seperately, this prevents chords drowning out melody.
 - add a mouseup event listener to window which stops all notes playing when the mouse-button is released
 - add an onmouseout event listener to notes and chords to release the chord/note when the cursor moves off it.
 - add mouseup state to synth parent, then add an onmouseover event to keys/chords so that they trigger ONLY IF the cursor is over them AND the mouse-button is down.
