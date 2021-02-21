@@ -3,6 +3,7 @@ import {ChordCalculations} from '../../chord-calculations';
 import {chordPadStyles} from '../../styles';
 import '../../styles.css';
 
+const formatted = ChordCalculations.formatChordOrNote;
 
 export const ChordPad = (props) => {
 
@@ -22,7 +23,7 @@ export const ChordPad = (props) => {
         className='chordpad-button'
       >
         <h1 className='chord-numeral'>{props.chordsState.chord1.numeral}</h1>
-        <h2 className='chord-name'>{props.chordsState.chord1.name}</h2>
+        <h2 className='chord-name'>{formatted(props.chordsState.chord1.name)}</h2>
       </div>
     </div>
 
@@ -32,7 +33,7 @@ export const ChordPad = (props) => {
         className='chordpad-button'
       >
         <h1 className='chord-numeral'>{props.chordsState.chord2.numeral}</h1>
-        <h2 className='chord-name'>{props.chordsState.chord2.name}</h2>
+        <h2 className='chord-name'>{formatted(props.chordsState.chord2.name)}</h2>
       </div>
     </div>
 
@@ -42,7 +43,7 @@ export const ChordPad = (props) => {
         className='chordpad-button'
       >
         <h1 className='chord-numeral'>{props.chordsState.chord3.numeral}</h1>
-        <h2 className='chord-name'>{props.chordsState.chord3.name}</h2>
+        <h2 className='chord-name'>{formatted(props.chordsState.chord3.name)}</h2>
       </div>
     </div>
 
@@ -52,7 +53,7 @@ export const ChordPad = (props) => {
         className='chordpad-button'
       >
         <h1 className='chord-numeral'>{props.chordsState.chord4.numeral}</h1>
-        <h2 className='chord-name'>{props.chordsState.chord4.name}</h2>
+        <h2 className='chord-name'>{formatted(props.chordsState.chord4.name)}</h2>
       </div>
     </div>
 
@@ -62,7 +63,7 @@ export const ChordPad = (props) => {
         className='chordpad-button'
       >
         <h1 className='chord-numeral'>{props.chordsState.chord5.numeral}</h1>
-        <h2 className='chord-name'>{props.chordsState.chord5.name}</h2>
+        <h2 className='chord-name'>{formatted(props.chordsState.chord5.name)}</h2>
       </div>
     </div>
 
@@ -72,7 +73,7 @@ export const ChordPad = (props) => {
         className='chordpad-button'
       >
         <h1 className='chord-numeral'>{props.chordsState.chord6.numeral}</h1>
-        <h2 className='chord-name'>{props.chordsState.chord6.name}</h2>
+        <h2 className='chord-name'>{formatted(props.chordsState.chord6.name)}</h2>
       </div>
     </div>
 
@@ -82,7 +83,7 @@ export const ChordPad = (props) => {
         className='chordpad-button'
       >
         <h1 className='chord-numeral'>{props.chordsState.chord7.numeral}</h1>
-        <h2 className='chord-name'>{props.chordsState.chord7.name}</h2>
+        <h2 className='chord-name'>{formatted(props.chordsState.chord7.name)}</h2>
       </div>
     </div>
     </div>
