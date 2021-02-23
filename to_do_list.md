@@ -4,6 +4,10 @@ Note: Since I'm going to be using the word 'keyboard' and 'key' alot, which coul
 
 ## immediate:
 
+- add more octaves, have first chord on the middle octave
+- add ability to move up/down an octave with assigned keys
+- allow user to track which octave they are on by visually accenting the octave (e.g. by placing a border around the octave)
+- hovering over a note (without clicking) will highlight the note in a subtle colour and display the note name (with octave number), clicking on the note will highlight it in a darker colour (still displaying the note name). 
 - add a mouseup event listener to window which stops all notes playing when the mouse-button is released
 - add an onmouseout event listener to notes and chords to release the chord/note when the cursor moves off it.
 - add mouseup state to synth parent, then add an onmouseover event to keys/chords so that they trigger ONLY IF the cursor is over them AND the mouse-button is down.

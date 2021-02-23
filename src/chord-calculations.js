@@ -40,8 +40,8 @@ const chordTypes = {
 
 export const ChordCalculations = {
 
-  formatChordOrNote(chordOrNote) {
-    return chordOrNote.replace('sh', '#');
+  formatNote(note) {
+    return note.replace('sh', '#');
   },
 
   getNotes() {

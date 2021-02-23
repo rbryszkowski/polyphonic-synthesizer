@@ -7,11 +7,37 @@ import {ChordCalculations} from '../../chord-calculations';
 import * as Tone from 'tone'; //generate sounds
 
 //variables:
-
+const operatingSys = 'mac'; //different OS have diffent keyCodes for physical keys
 const numOctaves = 1;
 const middleOctave = 4;
 const lowestOctave = middleOctave - Math.floor(numOctaves / 2);
+const highestOctave = lowestOctave + numOctaves;
 const notes = ["C", "Csh", "D", "Dsh", "E", "F", "Fsh", "G", "Gsh", "A", "Ash", "B"];
+const allPitches = [];
+
+let octaveIndex = lowestOctave;
+let notesIndex;
+for ( let i=0 ; i < 12*numOctaves ; i++ ) {
+  notesIndex = i % 12;
+  if ( notesIndex === 0 && i !== 0 ) {octaveIndex++};
+  allPitches.push(notes[notesIndex] + octaveIndex);
+}
+
+/*
+new Key-mappings object for configuring mappings based on physical layout and OS
+
+const keyMappings = {
+
+windows: {
+
+},
+
+mac: {
+
+}
+}
+
+*/
 
 const keyMappings = {
   //notes
@@ -37,38 +63,37 @@ const keyMappings = {
   'e': 'chord7'
 }
 
-const initialNotesState = {
-    'C': {isActive: false},
-    'Csh': {isActive: false},
-    'D': {isActive: false},
-    'Dsh': {isActive: false},
-    'E': {isActive: false},
-    'F': {isActive: false},
-    'Fsh': {isActive: false},
-    'G': {isActive: false},
-    'Gsh': {isActive: false},
-    'A': {isActive: false},
-    'Ash': {isActive: false},
-    'B': {isActive: false}
-}
-
-
 //module:
 
 export const SynthParent = () => {
 
   //const [testState, setTestState] = useState(0);
   const [synths, setSynths] = useState(['FMSynth', 'AMSynth', 'DuoSynth']);
-  //const [userSynth, setUserSynth] = useState(null);
   const [keySynth, setKeySynth] = useState(null);
   const [chordSynth, setChordSynth] = useState(null);
-  const [notesState, setNotesState] = useState(initialNotesState);
   const [keyEvent, setKeyEvent] = useState( { key: '', isDown: false } );
+
+  const [notesState, setNotesState] = useState({
+      'C': {isActive: false},
+      'Csh': {isActive: false},
+      'D': {isActive: false},
+      'Dsh': {isActive: false},
+      'E': {isActive: false},
+      'F': {isActive: false},
+      'Fsh': {isActive: false},
+      'G': {isActive: false},
+      'Gsh': {isActive: false},
+      'A': {isActive: false},
+      'Ash': {isActive: false},
+      'B': {isActive: false}
+  });
 
   const [scale, setScale] = useState( {root:'C', type:'major', tones: ChordCalculations.getScaleTones('C', 'major')} );
   const [chordComplexity, setChordComplexity] = useState(3); //how many notes in a chord
   const chordNumerals = [1,2,3,4,5,6,7].map( number => {return ChordCalculations.getChordNumeral(number, scale.type);});
   const chordNames = ChordCalculations.getChordsInKey(scale.root, scale.type);
+  const chordRoots = chordNames.map(chord => chord.split(' ')[0]);
+  const chordTypes = chordNames.map(chord => chord.split(' ')[1]);
   const chordNotes = chordNames.map( chord => {
     const root = chord.split(' ')[0];
     const type = chord.split(' ')[1];
@@ -76,13 +101,13 @@ export const SynthParent = () => {
   });
   const [chordsState, setChordsState] = useState(
     {
-      chord1: {isActive: false, name: chordNames[0], notes: chordNotes[0], numeral: chordNumerals[0]},
-      chord2: {isActive: false, name: chordNames[1], notes: chordNotes[1], numeral: chordNumerals[1]},
-      chord3: {isActive: false, name: chordNames[2], notes: chordNotes[2], numeral: chordNumerals[2]},
-      chord4: {isActive: false, name: chordNames[3], notes: chordNotes[3], numeral: chordNumerals[3]},
-      chord5: {isActive: false, name: chordNames[4], notes: chordNotes[4], numeral: chordNumerals[4]},
-      chord6: {isActive: false, name: chordNames[5], notes: chordNotes[5], numeral: chordNumerals[5]},
-      chord7: {isActive: false, name: chordNames[6], notes: chordNotes[6], numeral: chordNumerals[6]}
+      chord1: {isActive: false, name: chordNames[0], root: chordRoots[0], type: chordTypes[0], notes: chordNotes[0], numeral: chordNumerals[0]},
+      chord2: {isActive: false, name: chordNames[1], root: chordRoots[1], type: chordTypes[1], notes: chordNotes[1], numeral: chordNumerals[1]},
+      chord3: {isActive: false, name: chordNames[2], root: chordRoots[2], type: chordTypes[2], notes: chordNotes[2], numeral: chordNumerals[2]},
+      chord4: {isActive: false, name: chordNames[3], root: chordRoots[3], type: chordTypes[3], notes: chordNotes[3], numeral: chordNumerals[3]},
+      chord5: {isActive: false, name: chordNames[4], root: chordRoots[4], type: chordTypes[4], notes: chordNotes[4], numeral: chordNumerals[4]},
+      chord6: {isActive: false, name: chordNames[5], root: chordRoots[5], type: chordTypes[5], notes: chordNotes[5], numeral: chordNumerals[5]},
+      chord7: {isActive: false, name: chordNames[6], root: chordRoots[6], type: chordTypes[6], notes: chordNotes[6], numeral: chordNumerals[6]}
     }
   );
 
