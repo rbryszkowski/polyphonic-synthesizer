@@ -8,11 +8,19 @@ const format = ChordCalculations.formatNote;
 export const ChordPad = (props) => {
 
   function handleMouseDown(e) {
-    props.triggerChord(e.currentTarget.id);
+    props.handleMouseDown(e.currentTarget.id);
   }
 
   function handleMouseUp(e) {
-    props.releaseChord(e.currentTarget.id);
+    props.handleMouseUp(e.currentTarget.id);
+  }
+
+  function handleMouseOver(e) {
+    props.handleMouseOver(e.currentTarget.id);
+  }
+
+  function handleMouseOut(e) {
+    props.handleMouseOut(e.currentTarget.id);
   }
 
   function formatChord(chordID) {
@@ -23,7 +31,15 @@ export const ChordPad = (props) => {
 
   return (
     <div style={chordPadStyles.container}>
-    <div className='chord-button-overlay' onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} key='chord1' id='chord1'>
+    <div
+    className='chord-button-overlay'
+    onMouseDown={handleMouseDown}
+    onMouseUp={handleMouseUp}
+    onMouseOver={handleMouseOver}
+    onMouseOut={handleMouseOut}
+    key='chord1'
+    id='chord1'
+    >
       <div
         style={props.chordsState.chord1.isActive ? chordPadStyles.button.active : chordPadStyles.button.inactive}
         className='chordpad-button'
@@ -33,7 +49,15 @@ export const ChordPad = (props) => {
       </div>
     </div>
 
-    <div className='chord-button-overlay' onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} key='chord2' id='chord2'>
+    <div
+    className='chord-button-overlay'
+    onMouseDown={handleMouseDown}
+    onMouseUp={handleMouseUp}
+    onMouseOver={handleMouseOver}
+    onMouseOut={handleMouseOut}
+    key='chord2'
+    id='chord2'
+    >
       <div
         style={props.chordsState.chord2.isActive ? chordPadStyles.button.active : chordPadStyles.button.inactive}
         className='chordpad-button'
@@ -43,7 +67,15 @@ export const ChordPad = (props) => {
       </div>
     </div>
 
-    <div className='chord-button-overlay' onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} key='chord3' id='chord3'>
+    <div
+    className='chord-button-overlay'
+    onMouseDown={handleMouseDown}
+    onMouseUp={handleMouseUp}
+    onMouseOver={handleMouseOver}
+    onMouseOut={handleMouseOut}
+    key='chord3'
+    id='chord3'
+    >
       <div
         style={props.chordsState.chord3.isActive ? chordPadStyles.button.active : chordPadStyles.button.inactive}
         className='chordpad-button'
@@ -53,7 +85,15 @@ export const ChordPad = (props) => {
       </div>
     </div>
 
-    <div className='chord-button-overlay' onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} key='chord4' id='chord4'>
+    <div
+    className='chord-button-overlay'
+    onMouseDown={handleMouseDown}
+    onMouseUp={handleMouseUp}
+    onMouseOver={handleMouseOver}
+    onMouseOut={handleMouseOut}
+    key='chord4'
+    id='chord4'
+    >
       <div
         style={props.chordsState.chord4.isActive ? chordPadStyles.button.active : chordPadStyles.button.inactive}
         className='chordpad-button'
@@ -63,7 +103,14 @@ export const ChordPad = (props) => {
       </div>
     </div>
 
-    <div className='chord-button-overlay' onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} key='chord5' id='chord5'>
+    <div className='chord-button-overlay'
+    onMouseDown={handleMouseDown}
+    onMouseUp={handleMouseUp}
+    onMouseOver={handleMouseOver}
+    onMouseOut={handleMouseOut}
+    key='chord5'
+    id='chord5'
+    >
       <div
         style={props.chordsState.chord5.isActive ? chordPadStyles.button.active : chordPadStyles.button.inactive}
         className='chordpad-button'
@@ -73,7 +120,14 @@ export const ChordPad = (props) => {
       </div>
     </div>
 
-    <div className='chord-button-overlay' onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} key='chord6' id='chord6'>
+    <div className='chord-button-overlay'
+    onMouseDown={handleMouseDown}
+    onMouseUp={handleMouseUp}
+    onMouseOver={handleMouseOver}
+    onMouseOut={handleMouseOut}
+    key='chord6'
+    id='chord6'
+    >
       <div
         style={props.chordsState.chord6.isActive ? chordPadStyles.button.active : chordPadStyles.button.inactive}
         className='chordpad-button'
@@ -83,7 +137,15 @@ export const ChordPad = (props) => {
       </div>
     </div>
 
-    <div className='chord-button-overlay' onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} key='chord7' id='chord7'>
+    <div
+    className='chord-button-overlay'
+    onMouseDown={handleMouseDown}
+    onMouseUp={handleMouseUp}
+    onMouseOver={handleMouseOver}
+    onMouseOut={handleMouseOut}
+    key='chord7'
+    id='chord7'
+    >
       <div
         style={props.chordsState.chord7.isActive ? chordPadStyles.button.active : chordPadStyles.button.inactive}
         className='chordpad-button'

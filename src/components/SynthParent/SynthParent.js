@@ -27,7 +27,6 @@ for ( let i=0 ; i < 12*numOctaves ; i++ ) {
 new Key-mappings object for configuring mappings based on physical layout and OS
 
 const keyMappings = {
-
 windows: {
 
 },
@@ -36,7 +35,6 @@ mac: {
 
 }
 }
-
 */
 
 const keyMappings = {
@@ -72,6 +70,7 @@ export const SynthParent = () => {
   const [keySynth, setKeySynth] = useState(null);
   const [chordSynth, setChordSynth] = useState(null);
   const [keyEvent, setKeyEvent] = useState( { key: '', isDown: false } );
+  const [mouseIsDown, setMouseIsDown] = useState(false);
 
   const [notesState, setNotesState] = useState({
       'C': {isActive: false},
@@ -168,32 +167,70 @@ export const SynthParent = () => {
     } );
   }
 
-  const handleMouseDown = (note) => {
-    triggerNote(note);
-    //update notes state
-    setNotesState( ({[note]:noteObj, ...rest}) => {
-      let {isActive} = noteObj;
-      isActive = true;
-      return {[note]: {isActive: isActive}, ...rest};
-    } );
+  const handleMouseDown = (elem) => {
+    setMouseIsDown(()=>true);
+    if (elem.includes('chord')) {
+      //chord logic
+      triggerChordAtID(elem);
+    } else {
+      //note logic
+      triggerNote(elem, keySynth);
+      //update notes state
+      setNotesState( ({[elem]:noteObj, ...rest}) => {
+        let {isActive} = noteObj;
+        isActive = true;
+        return {[elem]: {isActive: isActive}, ...rest};
+      } );
+    }
   }
 
-  const handleMouseUp = (note) => {
-    releaseNote(note);
-    //update notes state
-    setNotesState( ({[note]:noteObj, ...rest}) => {
-      let {isActive} = noteObj;
-      isActive = false;
-      return {[note]: {isActive: isActive}, ...rest};
-    } );
+  const handleMouseUp = (elem) => {
+    setMouseIsDown(()=>false);
+    if (elem.includes('chord')) {
+      //chord logic
+      releaseChordAtID(elem);
+    } else {
+      //note logic
+      releaseNote(elem, keySynth);
+      //update notes state
+      setNotesState( ({[elem]:noteObj, ...rest}) => {
+        let {isActive} = noteObj;
+        isActive = false;
+        return {[elem]: {isActive: isActive}, ...rest};
+      } );
+    }
   }
 
-  const handleMouseOver = note => {
-
+  const handleMouseOver = (elem) => {
+    if (mouseIsDown && elem.includes('chord')) {
+      //chord logic
+      triggerChordAtID(elem);
+    } else if (mouseIsDown && !elem.includes('chord'))  {
+      //note logic
+      triggerNote(elem, keySynth);
+      //update notes state
+      setNotesState( ({[elem]:noteObj, ...rest}) => {
+        let {isActive} = noteObj;
+        isActive = true;
+        return {[elem]: {isActive: isActive}, ...rest};
+      } );
+    }
   }
 
-  const handleMouseOut = note => {
-
+  const handleMouseOut = (elem) => {
+    if (mouseIsDown && elem.includes('chord')) {
+      //chord logic
+      releaseChordAtID(elem);
+    } else if (mouseIsDown && !elem.includes('chord'))  {
+      //note logic
+      releaseNote(elem, keySynth);
+      //update notes state
+      setNotesState( ({[elem]:noteObj, ...rest}) => {
+        let {isActive} = noteObj;
+        isActive = false;
+        return {[elem]: {isActive: isActive}, ...rest};
+      } );
+    }
   }
 
   const handleKeyDown = e => {
@@ -225,16 +262,20 @@ export const SynthParent = () => {
   //add event listeners for keyPresses
   useEffect( () => {
     //action
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('keyup', handleKeyUp);
-    //setUserSynth(new Tone.PolySynth(Tone[synths[0]]).toDestination());
     setKeySynth(new Tone.PolySynth(Tone[synths[0]]).toDestination());
     setChordSynth(new Tone.PolySynth(Tone[synths[1]]).toDestination());
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+    window.addEventListener('mouseup', () => {
+      setMouseIsDown(()=>false);
+    });
     //cleanup func
     return ( () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
-      //if (userSynth) {userSynth.dispose();}
+      window.addEventListener('mouseup', () => {
+        setMouseIsDown(()=>false);
+      });
       if (keySynth) {keySynth.dispose();}
       if (chordSynth) {chordSynth.dispose();}
     } );
@@ -289,9 +330,11 @@ export const SynthParent = () => {
   return (
     <div style={synthParentStyles}>
       <ChordPad
-      triggerChord={triggerChordAtID}
-      releaseChord={releaseChordAtID}
       chordsState={chordsState}
+      handleMouseUp={handleMouseUp}
+      handleMouseDown={handleMouseDown}
+      handleMouseOver={handleMouseOver}
+      handleMouseOut={handleMouseOut}
       />
       <br/>
       <SynthKeys
