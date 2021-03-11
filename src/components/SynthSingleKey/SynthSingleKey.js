@@ -21,9 +21,9 @@ export const SynthSingleKey = (props) => {
     props.handleMouseOut(e.target.id);
   }
 
-  const note = props.pitch.slice(0,-1);
+  //const note = props.pitch.slice(0,-1);
 
-  const calculateStyle = () => {
+  const calculateStyle = (note) => {
     const isSharp = note.match(/sh/) ? true : false;
     const keyStyle = isSharp ? synthKeysStyles.sharps[note] : synthKeysStyles.naturals;
     const backgroundColor = props.keyIsActive ? "#00FF00" : keyStyle.backgroundColor;
@@ -32,8 +32,8 @@ export const SynthSingleKey = (props) => {
 
   return (
     <div
-      id={note}
-      style={calculateStyle()}
+      id={props.pitch}
+      style={calculateStyle(props.pitch.slice(0,-1))}
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
       onMouseOver={handleMouseOver}

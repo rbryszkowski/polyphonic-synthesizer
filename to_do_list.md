@@ -4,13 +4,12 @@ Note: Since I'm going to be using the word 'keyboard' and 'key' alot, which coul
 
 ## immediate:
 
-- add more octaves, chords start on middle octave, same as notes (can move to higher lower octave with assigned keys)
+- Create two new components that handle the chord logic and the keyboard logic, and move the code relevant code from synth parent into these. Create another two components named KeysContainer, and ChordContainer and use these as presentational modules for the keys and chordpad. This will seperate concerns and declutter the synth parent - it will now only handle logic for key events. notes states and chord states will be moved to their new logic modules and key events will be passed down as props to these modules.
 - improve style and layout
 - add ability to move up/down an octave with assigned keys
-- allow user to track which octave they are on by visually accenting the octave (e.g. by placing a border around the octave)
+- add a 'mini-map' (in a component called KeyboardMap) of the whole keyboard, which highlights which octave(s)/chunk of the keyboard the user is interacting with.
 - hovering over a note (without clicking) will highlight the note in a subtle colour and display the note name (with octave number), clicking on the note will highlight it in a darker colour (still displaying the note name).
 - add more scales and chords
-
 
 ## future features:
 

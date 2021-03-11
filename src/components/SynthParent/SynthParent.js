@@ -8,96 +8,81 @@ import * as Tone from 'tone'; //generate sounds
 
 //variables:
 const operatingSys = 'mac'; //different OS have diffent keyCodes for physical keys
-const numOctaves = 1;
-const middleOctave = 4;
-const lowestOctave = middleOctave - Math.floor(numOctaves / 2);
-const highestOctave = lowestOctave + numOctaves;
-const notes = ["C", "Csh", "D", "Dsh", "E", "F", "Fsh", "G", "Gsh", "A", "Ash", "B"];
-const allPitches = [];
 
-let octaveIndex = lowestOctave;
-let notesIndex;
-for ( let i=0 ; i < 12*numOctaves ; i++ ) {
-  notesIndex = i % 12;
-  if ( notesIndex === 0 && i !== 0 ) {octaveIndex++};
-  allPitches.push(notes[notesIndex] + octaveIndex);
-}
+const notes = ["C", "Csh", "D", "Dsh", "E", "F", "Fsh", "G", "Gsh", "A", "Ash", "B"];
+
+//full keyboard range
+const allPitches = ChordCalculations.notesInRange('C2','B6');
+
+//user uses 2 octaves of whole keyboard
+//initial range = C4 - B5
+const numOctaves = 2;
 
 /*
-new Key-mappings object for configuring mappings based on physical layout and OS
+new Key-mappings object for configuring mappings based on key codes and OS
 
 const keyMappings = {
-windows: {
+windows: {notes[], chords:[]}
 
-},
-
-mac: {
-
-}
-}
+mac: {notes:[], chords:[]}
+};
 */
 
-const keyMappings = {
-  //notes
-  d: 'C',
-  r: 'Csh',
-  f: 'D',
-  t: 'Dsh',
-  g: 'E',
-  h: 'F',
-  u: 'Fsh',
-  j: 'G',
-  i: 'Gsh',
-  k: 'A',
-  o: 'Ash',
-  l: 'B',
-  //chords
-  '1': 'chord1',
-  '2': 'chord2',
-  '3': 'chord3',
-  '4': 'chord4',
-  'q': 'chord5',
-  'w': 'chord6',
-  'e': 'chord7'
+const keysUsedForNotes = ['q' , '2' , 'w' , '3' , 'e' , 'r' , '5' , 't' , '6' , 'y' , '7' , 'u' , 'i' , '9' , 'o' , '0' , 'p' , '[' , '=' , ']' , 'a' , 'z' , 's' , 'x'];
+const keysUsedForChords = ['c' , 'v' , 'b' , 'n' , 'm' , ',' , '.'];
+
+const initLowOctave = 3;
+const initHighOctave = initLowOctave + numOctaves - 1;
+const initPitchRange = ChordCalculations.notesInRange('C' + initLowOctave, 'B' + initHighOctave);
+
+let initKeyMappings = {notes:{}, chords:{}};
+
+for (let i = 0; i < keysUsedForNotes.length; i++) {
+  initKeyMappings.notes[keysUsedForNotes[i]] = initPitchRange[i];
+}
+for (let i = 0; i < keysUsedForChords.length; i++) {
+  initKeyMappings.chords[keysUsedForChords[i]] = 'chord' + (i + 1);
 }
 
-//module:
+//MODULE:
 
 export const SynthParent = () => {
 
-  //const [testState, setTestState] = useState(0);
-  const [synths, setSynths] = useState(['FMSynth', 'AMSynth', 'DuoSynth']);
-  const [keySynth, setKeySynth] = useState(null);
-  const [chordSynth, setChordSynth] = useState(null);
-  const [keyEvent, setKeyEvent] = useState( { key: '', isDown: false } );
-  const [mouseIsDown, setMouseIsDown] = useState(false);
+  //RANGE & KEY MAPPINGS
 
-  const [notesState, setNotesState] = useState({
-      'C': {isActive: false},
-      'Csh': {isActive: false},
-      'D': {isActive: false},
-      'Dsh': {isActive: false},
-      'E': {isActive: false},
-      'F': {isActive: false},
-      'Fsh': {isActive: false},
-      'G': {isActive: false},
-      'Gsh': {isActive: false},
-      'A': {isActive: false},
-      'Ash': {isActive: false},
-      'B': {isActive: false}
-  });
+  const [lowOctave, setLowOctave] = useState(initLowOctave);
+  const [highOctave, setHighOctave] = useState(initHighOctave);
+  const [userPitchRange, setUserPitchRange] = useState(initPitchRange);
+  const [keyMappings, setKeyMappings] = useState(initKeyMappings);
 
+  //NOTES
+
+  const initialNotesState = {};
+  for (let i = 0; i < userPitchRange.length; i++) {
+    initialNotesState[userPitchRange[i]] = {isActive: false};
+  }
+  const [notesState, setNotesState] = useState(initialNotesState);
+
+  ;
+
+  //CHORDS
+
+  const chordsLowOctave = 3;
   const [scale, setScale] = useState( {root:'C', type:'major', tones: ChordCalculations.getScaleTones('C', 'major')} );
   const [chordComplexity, setChordComplexity] = useState(3); //how many notes in a chord
   const chordNumerals = [1,2,3,4,5,6,7].map( number => {return ChordCalculations.getChordNumeral(number, scale.type);});
   const chordNames = ChordCalculations.getChordsInKey(scale.root, scale.type);
   const chordRoots = chordNames.map(chord => chord.split(' ')[0]);
   const chordTypes = chordNames.map(chord => chord.split(' ')[1]);
-  const chordNotes = chordNames.map( chord => {
-    const root = chord.split(' ')[0];
-    const type = chord.split(' ')[1];
-    return ChordCalculations.buildChordFromType(root, type);
-  });
+  //const chordStart = scale.root + chordOctave; //lowest note of first chord
+  //const chordsRange = allPitches.slice(allPitches.indexOf(chordStart));
+  const chordNotes = chordNames.map( (chord, i) => {
+    let nonIndexedNotes = ChordCalculations.buildChordFromType(chordRoots[i], chordTypes[i]);
+    return ChordCalculations.addOctaves(chordsLowOctave, nonIndexedNotes);
+  } );
+
+  console.log('chordNotes = ', chordNotes);
+
   const [chordsState, setChordsState] = useState(
     {
       chord1: {isActive: false, name: chordNames[0], root: chordRoots[0], type: chordTypes[0], notes: chordNotes[0], numeral: chordNumerals[0]},
@@ -110,20 +95,58 @@ export const SynthParent = () => {
     }
   );
 
+  //OTHER
+
+  const [synths, setSynths] = useState(['FMSynth', 'AMSynth', 'DuoSynth']);
+  const [keySynth, setKeySynth] = useState(null);
+  const [chordSynth, setChordSynth] = useState(null);
+  const [keyEvent, setKeyEvent] = useState( { key: '', isDown: false } );
+  const [mouseIsDown, setMouseIsDown] = useState(false);
+
   //functions and event handlers:
 
-  const triggerRandChord = (root) => {
-    let chordSelection = ['major', 'minor'];
-    let chordRandIndex = Math.floor( Math.random() * chordSelection.length);
-    let rootRandIndex = Math.floor( Math.random() * notes.length);
-    let chordNotes = ChordCalculations.buildChordFromType(notes[rootRandIndex], chordSelection[chordRandIndex]);
-    triggerChord(chordNotes);
+  const triggerNote = (note, synth, delay=0) => {
+    let now = Tone.now();
+    let formattedNote = note.replace('sh', '#');
+    //console.log('formatted note just before trigger:', formattedNote);
+    synth.triggerAttack(formattedNote, now + delay);
+  }
+
+  const releaseNote = (note, synth, delay=0) => {
+    let now = Tone.now();
+    let formattedNote = note.replace('sh', '#');
+    //console.log('formatted note just before release:', formattedNote);
+    synth.triggerRelease(formattedNote, now + delay);
   }
 
   const releaseAllNotes = (synth) => {
     for (let i=0;i<notes.length;i++) {
       releaseNote(notes[i], synth);
     }
+  }
+
+  const activateKey = (note) => {
+    triggerNote(note, keySynth);
+    //update notes state
+    setNotesState( (prev) => {
+      return {...prev,[note]: {isActive: true}};
+    } );
+  }
+
+  const deactivateKey = (note) => {
+    releaseNote(note, keySynth);
+    //update notes state
+    setNotesState( (prev) => {
+      return {...prev, [note]: {isActive: false}};
+    } );
+  }
+
+  const triggerRandChord = (root) => {
+    let chordSelection = ['major', 'minor'];
+    let chordRandIndex = Math.floor( Math.random() * chordSelection.length );
+    let rootRandIndex = Math.floor( Math.random() * notes.length );
+    let chordNotes = ChordCalculations.buildChordFromType(notes[rootRandIndex], chordSelection[chordRandIndex]);
+    triggerChord(chordNotes);
   }
 
   const triggerChord = (chordArr, delay=0, stagger=0) => {
@@ -139,122 +162,70 @@ export const SynthParent = () => {
     }
   }
 
-  const triggerChordAtID = (chordID) => {
+  const activateChord = (chordID) => {
     let chordNotes = chordsState[chordID].notes;
     triggerChord(chordNotes);
     //update chords state:
-    setChordsState( ({[chordID]:chordObj, ...restChordsState}) => {
-      let {isActive, ...restChordObj} = chordObj;
-      isActive = true;
-      return {
-        [chordID]: {isActive: isActive, ...restChordObj},
-        ...restChordsState
-      }
+    setChordsState( (prev) => {
+      const {isActive, ...rest} = prev[chordID];
+      return {...prev, [chordID]: {isActive: true, ...rest}}
     } );
   }
 
-  const releaseChordAtID = (chordID) => {
+  const deactivateChord = (chordID) => {
     let chordNotes = chordsState[chordID].notes;
     releaseChord(chordNotes);
     //update chords state:
-    setChordsState( ({[chordID]:chordObj, ...restChordsState}) => {
-      let {isActive, ...restChordObj} = chordObj;
-      isActive = false;
-      return {
-        [chordID]: {isActive: isActive, ...restChordObj},
-        ...restChordsState
-      }
+    setChordsState( (prev) => {
+      const {isActive, ...rest} = prev[chordID];
+      return {...prev, [chordID]: {isActive: false, ...rest}}
     } );
   }
 
-  const handleMouseDown = (elem) => {
+  const handleMouseDown = (id) => {
     setMouseIsDown(()=>true);
-    if (elem.includes('chord')) {
-      //chord logic
-      triggerChordAtID(elem);
+    if (id.includes('chord')) {
+      activateChord(id);
     } else {
-      //note logic
-      triggerNote(elem, keySynth);
-      //update notes state
-      setNotesState( ({[elem]:noteObj, ...rest}) => {
-        let {isActive} = noteObj;
-        isActive = true;
-        return {[elem]: {isActive: isActive}, ...rest};
-      } );
+      activateKey(id);
     }
   }
 
-  const handleMouseUp = (elem) => {
+  const handleMouseUp = (id) => {
     setMouseIsDown(()=>false);
-    if (elem.includes('chord')) {
-      //chord logic
-      releaseChordAtID(elem);
+    if (id.includes('chord')) {
+      deactivateChord(id);
     } else {
-      //note logic
-      releaseNote(elem, keySynth);
-      //update notes state
-      setNotesState( ({[elem]:noteObj, ...rest}) => {
-        let {isActive} = noteObj;
-        isActive = false;
-        return {[elem]: {isActive: isActive}, ...rest};
-      } );
+      deactivateKey(id);
     }
   }
 
-  const handleMouseOver = (elem) => {
-    if (mouseIsDown && elem.includes('chord')) {
-      //chord logic
-      triggerChordAtID(elem);
-    } else if (mouseIsDown && !elem.includes('chord'))  {
-      //note logic
-      triggerNote(elem, keySynth);
-      //update notes state
-      setNotesState( ({[elem]:noteObj, ...rest}) => {
-        let {isActive} = noteObj;
-        isActive = true;
-        return {[elem]: {isActive: isActive}, ...rest};
-      } );
+  const handleMouseOver = (id) => {
+    if (mouseIsDown && id.includes('chord')) {
+      activateChord(id);
+    } else if (mouseIsDown && !id.includes('chord'))  {
+      activateKey(id);
     }
   }
 
-  const handleMouseOut = (elem) => {
-    if (mouseIsDown && elem.includes('chord')) {
-      //chord logic
-      releaseChordAtID(elem);
-    } else if (mouseIsDown && !elem.includes('chord'))  {
-      //note logic
-      releaseNote(elem, keySynth);
-      //update notes state
-      setNotesState( ({[elem]:noteObj, ...rest}) => {
-        let {isActive} = noteObj;
-        isActive = false;
-        return {[elem]: {isActive: isActive}, ...rest};
-      } );
+  const handleMouseOut = (id) => {
+    if (mouseIsDown && id.includes('chord')) {
+      deactivateChord(id);
+    } else if (mouseIsDown && !id.includes('chord'))  {
+      deactivateKey(id);
     }
   }
 
   const handleKeyDown = e => {
-    if (!keyMappings[e.key]) {return;}
-    setKeyEvent({key: e.key, isDown: true});
+    if (keyMappings.notes[e.key] || keyMappings.chords[e.key] ) {
+      setKeyEvent({key: e.key, isDown: true});
+    }
   }
 
   const handleKeyUp = e => {
-    if (!keyMappings[e.key]) {return;}
-    setKeyEvent({key: e.key, isDown: false});
-  }
-
-  const triggerNote = (note, synth, delay=0) => {
-    let now = Tone.now();
-    let formattedNote = note.replace('sh', '#') + middleOctave;
-    //console.log('formatted note just before trigger:', formattedNote);
-    synth.triggerAttack(formattedNote, now + delay);
-  }
-
-  const releaseNote = (note, synth, delay=0) => {
-    let now = Tone.now();
-    let formattedNote = note.replace('sh', '#') + middleOctave;
-    //console.log('formatted note just before release:', formattedNote);
-    synth.triggerRelease(formattedNote, now + delay);
+    if (keyMappings.notes[e.key] || keyMappings.chords[e.key] ) {
+      setKeyEvent({key: e.key, isDown: false});
+    }
   }
 
   //UseEffects:
@@ -284,41 +255,36 @@ export const SynthParent = () => {
   //handle key events
   useEffect(() => {
 
-    if (keyMappings[keyEvent.key]) {
-      let chord, note;
-      //is the key mapped to a note or a chord?
-      if (keyMappings[keyEvent.key].includes('chord')) {
-        chord = keyMappings[keyEvent.key];
-      } else {
-        note = keyMappings[keyEvent.key];
+    //keyboard mappings
+    if (keyMappings.notes[keyEvent.key]) {
+
+      let note = keyMappings.notes[keyEvent.key]
+
+      //trigger key
+      if (keyEvent.isDown && !notesState[note].isActive) {
+        activateKey(note);
       }
-      //trigger note
-      if (note && keyEvent.isDown && !notesState[note].isActive) {
-        triggerNote(note, keySynth);
-        //update notes state
-        setNotesState( ({[note]:noteObj, ...rest}) => {
-          let {isActive} = noteObj;
-          isActive = true;
-          return {[note]: {isActive: isActive}, ...rest};
-        } );
+
+      //release key
+      if (!keyEvent.isDown) {
+        deactivateKey(note);
       }
-      //triggerChord
-      if (chord && keyEvent.isDown && !chordsState[chord].isActive) {
-        triggerChordAtID(chord);
+
+    }
+
+    //chordpad mappings
+    if (keyMappings.chords[keyEvent.key]) {
+
+      let chord = keyMappings.chords[keyEvent.key]
+
+      //trigger chord
+      if (keyEvent.isDown && !chordsState[chord].isActive) {
+        activateChord(chord);
       }
-      //release note
-      if (note && !keyEvent.isDown) {
-        releaseNote(note, keySynth);
-        //update notes state
-        setNotesState( ({[note]:noteObj, ...rest}) => {
-          let {isActive} = noteObj;
-          isActive = false;
-          return {[note]: {isActive: isActive}, ...rest};
-        } );
-      }
-      //releaseChord
-      if (chord && !keyEvent.isDown) {
-        releaseChordAtID(chord);
+
+      //release chord
+      if (!keyEvent.isDown) {
+        deactivateChord(chord);
       }
 
     }
@@ -339,7 +305,7 @@ export const SynthParent = () => {
       <br/>
       <SynthKeys
       numOctaves={numOctaves}
-      lowestOctave={lowestOctave}
+      lowOctave={lowOctave}
       notesState={notesState}
       handleMouseUp={handleMouseUp}
       handleMouseDown={handleMouseDown}

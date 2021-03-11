@@ -107,6 +107,7 @@ export const ChordCalculations = {
     return chord;
   },
 
+
   buildChordFromType(root, type) {
 
     if (!chordTypes[type]) {
@@ -131,6 +132,34 @@ export const ChordCalculations = {
 
     return chordArr;
 
+  },
+
+  notesInRange(startPitch, endPitch) {
+    let notesInRange = []
+    let startNote = startPitch.replace('#','sh').slice(0,-1);
+    let startOctave = startPitch.slice(-1);
+    let i = notes.indexOf(startNote);
+    let octave = startOctave;
+    let pitch;
+    while (pitch!==endPitch) {
+      pitch = notes[i%notes.length] + octave;
+      notesInRange.push(pitch);
+      i++;
+      if (i%notes.length===0) {octave++};
+    }
+    return notesInRange;
+  },
+
+  addOctaves(lowestOctave, arr) { //works for chords and scales and note sets that dont skip octaves
+    let indexedNotes = [];
+    let octave = lowestOctave;
+    for (let i=0;i<arr.length;i++) {
+      if (i !== 0 && notes.indexOf(arr[i]) <= notes.indexOf(arr[i-1])) {
+        octave++;
+      }
+      indexedNotes.push(arr[i] + octave);
+    }
+    return indexedNotes;
   }
 
 }

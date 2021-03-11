@@ -10,8 +10,8 @@ export const SynthKeys = (props) => {
 
   const renderKeys = () => {
     const numOctaves = Number(props.numOctaves);
-    let lowestOctave = Number(props.lowestOctave);
-    let octaveIndex = lowestOctave;
+    let lowOctave = Number(props.lowOctave);
+    let octaveIndex = lowOctave;
     let contents = [];
 
     for(let o=0;o<numOctaves;o++) {
@@ -21,7 +21,7 @@ export const SynthKeys = (props) => {
           (<SynthSingleKey
               pitch={notes[i] + octaveIndex}
               key={notes[i] + octaveIndex}
-              keyIsActive={props.notesState[notes[i]].isActive}
+              keyIsActive={props.notesState[notes[i] + octaveIndex].isActive}
               handleMouseDown={props.handleMouseDown}
               handleMouseUp={props.handleMouseUp}
               handleMouseOver={props.handleMouseOver}
