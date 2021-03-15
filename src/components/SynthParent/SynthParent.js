@@ -63,8 +63,6 @@ export const SynthParent = () => {
   }
   const [notesState, setNotesState] = useState(initialNotesState);
 
-  ;
-
   //CHORDS
 
   const chordsLowOctave = 3;
@@ -108,14 +106,12 @@ export const SynthParent = () => {
   const triggerNote = (note, synth, delay=0) => {
     let now = Tone.now();
     let formattedNote = note.replace('sh', '#');
-    //console.log('formatted note just before trigger:', formattedNote);
     synth.triggerAttack(formattedNote, now + delay);
   }
 
   const releaseNote = (note, synth, delay=0) => {
     let now = Tone.now();
     let formattedNote = note.replace('sh', '#');
-    //console.log('formatted note just before release:', formattedNote);
     synth.triggerRelease(formattedNote, now + delay);
   }
 
@@ -126,7 +122,8 @@ export const SynthParent = () => {
   }
 
   const activateKey = (note) => {
-    triggerNote(note, keySynth);
+      triggerNote(note, keySynth);
+
     //update notes state
     setNotesState( (prev) => {
       return {...prev,[note]: {isActive: true}};
