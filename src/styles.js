@@ -16,6 +16,7 @@ const sharpWidth = naturalWidth * 3/5;
 const sharpHeight = naturalHeight * 3/5;
 //const sharpOffset = naturalWidth - sharpWidth/2;
 const naturalKeys = ["C", "D", "E", "F", "G", "A", "B"];
+
 const sharpPositions = [
   ((naturalKeys.indexOf("C")+1) * naturalWidth) + (1*2*naturalMarginRL) + (1*2*naturalBorderRL) - sharpWidth/2,
   ((naturalKeys.indexOf("D")+1) * naturalWidth) + (2*2*naturalMarginRL) + (2*2*naturalBorderRL) - sharpWidth/2,
@@ -39,7 +40,8 @@ const general = {
     width: sharpWidth,
     borderStyle: "solid",
     borderColor: "black",
-    borderWidth: "2px 1px"
+    borderWidth: "2px 1px",
+    borderRadius: "5px"
   }
 
 }
@@ -74,7 +76,9 @@ export const chordPadStyles = {
       textAlign: 'center',
       display: 'inline-block',
       height: '100%',
-      width: '100%'
+      width: '100%',
+      borderRadius: "5px"
+
     },
 
     active: {
@@ -82,7 +86,8 @@ export const chordPadStyles = {
         textAlign: 'center',
         display: 'inline-block',
         height: '100%',
-        width: '100%'
+        width: '100%',
+        borderRadius: "5px"
     }
 
   }
@@ -93,7 +98,8 @@ export const synthParentStyles = {
   backgroundColor: "#505050",
   display: "inline-block",
   position: "relative",
-  padding: "4px 4px"
+  padding: "4px 4px",
+  borderRadius: "5px"
 }
 
 
@@ -120,18 +126,19 @@ export const synthKeysStyles = {
     backgroundColor: "#00FF00"
   },
 
-  naturals: {
-    textAlign: "center",
-    position: "relative",
-    display: "inline-block",
-    color: "black",
-    backgroundColor: "white",
-    height: naturalHeight,
-    width: naturalWidth,
-    borderStyle: "solid",
-    borderColor: "black",
-    borderWidth: naturalBorderUD + "px " + naturalBorderRL + "px",
-    margin: "0px " + naturalMarginRL + "px"
+    naturals: {
+        textAlign: "center",
+        position: "relative",
+        display: "inline-block",
+        color: "black",
+        backgroundColor: "white",
+        height: naturalHeight,
+        width: naturalWidth,
+        borderStyle: "solid",
+        borderColor: "black",
+        borderWidth: naturalBorderUD + "px " + naturalBorderRL + "px",
+        margin: "0px " + naturalMarginRL + "px",
+        borderRadius: "5px"
   },
 
   sharps: {

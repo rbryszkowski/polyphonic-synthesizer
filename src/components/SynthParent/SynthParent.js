@@ -1,9 +1,10 @@
 
-import React, {useState, useEffect} from 'react';
-import {synthParentStyles} from '../../styles';
-import {ChordPad} from '../ChordPad/ChordPad';
-import {SynthKeys} from '../SynthKeys/SynthKeys';
-import {ChordCalculations} from '../../chord-calculations';
+import React, { useState, useEffect } from 'react';
+import { synthParentStyles } from '../../styles';
+import { ChordPad } from '../ChordPad/ChordPad';
+import { SynthKeys } from '../SynthKeys/SynthKeys';
+import { ChordCalculations } from '../../chord-calculations';
+import { Instruments } from '../../Instruments';
 import * as Tone from 'tone'; //generate sounds
 
 //variables:
@@ -93,13 +94,31 @@ export const SynthParent = () => {
     }
   );
 
-  //OTHER
+  //SYNTH AUDIO
 
-  const [synths, setSynths] = useState(['FMSynth', 'AMSynth', 'DuoSynth']);
-  const [keySynth, setKeySynth] = useState(null);
-  const [chordSynth, setChordSynth] = useState(null);
-  const [keyEvent, setKeyEvent] = useState( { key: '', isDown: false } );
-  const [mouseIsDown, setMouseIsDown] = useState(false);
+    /*
+     * Synth Options:
+     * Instruments.
+     * amSynth
+     * fmSynth
+     * duoSynth
+     * membraneSynth
+     * metalSynth
+     * noiseSynth
+     * pluckSynth
+    */
+
+    const [keySynth, setKeySynth] = useState(Instruments.duoSynth);
+    const [keySynthVol, setKeySynthVol] = useState(new Tone.Volume(-12));
+    const [chordSynth, setChordSynth] = useState(Instruments.amSynth);
+    const [chordSynthVol, setChordSynthVol] = useState(new Tone.Volume(-12));
+
+
+
+   //KEYBOARD/MOUSE INTERACTION
+
+    const [keyEvent, setKeyEvent] = useState( { key: '', isDown: false } );
+    const [mouseIsDown, setMouseIsDown] = useState(false);
 
   //functions and event handlers:
 
@@ -229,9 +248,9 @@ export const SynthParent = () => {
 
   //add event listeners for keyPresses
   useEffect( () => {
-    //action
-    setKeySynth(new Tone.PolySynth(Tone[synths[0]]).toDestination());
-    setChordSynth(new Tone.PolySynth(Tone[synths[1]]).toDestination());
+      //action
+    keySynth.connect(keySynthVol).toDestination();
+    chordSynth.connect(chordSynthVol).toDestination();
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
     window.addEventListener('mouseup', () => {

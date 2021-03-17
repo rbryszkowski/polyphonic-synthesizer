@@ -21,8 +21,6 @@ export const SynthSingleKey = (props) => {
     props.handleMouseOut(e.target.id);
   }
 
-  //const note = props.pitch.slice(0,-1);
-
   const calculateStyle = (note) => {
     const isSharp = note.match(/sh/) ? true : false;
     const keyStyle = isSharp ? synthKeysStyles.sharps[note] : synthKeysStyles.naturals;
